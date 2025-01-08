@@ -9,4 +9,4 @@ form.addEventListener('submit', (evento) => {
   const senha = form['input-senha'].value;
 
   emitirCadastrarUsuario({nome, senha});
-})
+});
