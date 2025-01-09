@@ -6,6 +6,8 @@ function autorizarUsuario(socket, next) {
     try {
         jwt.verify(tokenJwt, process.env.SEGREDO_JWT);
 
+        next();
+
     } catch (erro) {
         next(erro);
     }
