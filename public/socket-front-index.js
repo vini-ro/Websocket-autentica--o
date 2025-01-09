@@ -7,11 +7,6 @@ const socket = io("/usuarios",{
   }
 });
 
-socket.on("connect_error", (erro) => {
-  alert(erro);
-  window.location.href = "/login/index.html";
-});
-
 socket.on('connect_error', (erro) => {
   alert(erro)
   window.location.href = '/login/index.html';

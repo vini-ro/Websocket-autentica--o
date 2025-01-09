@@ -2,34 +2,42 @@ import {
   atualizaDocumento,
   encontrarDocumento,
   excluirDocumento,
-} from "../db/documentosDb.js";
+} from '../db/documentosDb.js';
+import { adicionarConexao, obterUsuariosDocumento } from '../utils/conexoesDocumento.js';
 
 function registrarEventosDocumento(socket, io) {
-  socket.on("selecionar_documento", async ({nomeDocumento, nomeUsuario}, devolverTexto) => {
-    console.log(nomeUsuario);
+  socket.on(
+    'selecionar_documento',
+    async ({ nomeDocumento, nomeUsuario }, devolverTexto) => {
+      const documento = await encontrarDocumento(nomeDocumento);
 
-    socket.join(nomeDocumento);
+      if (documento) {
+        socket.join(nomeDocumento);
 
-    const documento = await encontrarDocumento(nomeDocumento);
+        adicionarConexao({ nomeDocumento, nomeUsuario });
 
-    if (documento) {
-      devolverTexto(documento.texto);
+        const usuariosNoDocumento = obterUsuariosDocumento(nomeDocumento);
+
+        console.log(usuariosNoDocumento);
+
+        devolverTexto(documento.texto);
+      }
     }
-  });
+  );
 
-  socket.on("texto_editor", async ({ texto, nomeDocumento }) => {
+  socket.on('texto_editor', async ({ texto, nomeDocumento }) => {
     const atualizacao = await atualizaDocumento(nomeDocumento, texto);
 
     if (atualizacao.modifiedCount) {
-      socket.to(nomeDocumento).emit("texto_editor_clientes", texto);
+      socket.to(nomeDocumento).emit('texto_editor_clientes', texto);
     }
   });
 
-  socket.on("excluir_documento", async (nome) => {
+  socket.on('excluir_documento', async (nome) => {
     const resultado = await excluirDocumento(nome);
 
     if (resultado.deletedCount) {
-      io.emit("excluir_documento_sucesso", nome);
+      io.emit('excluir_documento_sucesso', nome);
     }
   });
 }
